@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "necronomy-of-scale"
+version = "0.0.0"
+description = "Make managing your rotting husks a breeze!"
+readme = "README.md"
+authors = [
+  {name = "Dustin Phillip Summy", email = "dustinsummy@gmail.com"}
+]
+maintainers = [
+  {name = "Dustin Phillip Summy", email = "dustinsummy@gmail.com"}
+]
+classifiers = [
+
+]
+license = {file = "LICENSE.md"}
+dependencies = [
+     "pygame-ce>=2.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",  # testing
+    "mypy",  # linting
+    "pytest",  # testing
+    "ruff"  # linting
+]
+
+[project.urls]
+
+bugs = "https://github.com/7c-c7/necronomy-of-scale/issues"
+homepage = "https://github.com/7c-c7/necronomy-of-scale"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+
+
+
+# Mypy
+# ----
+
+[tool.mypy]
+files = "."
+
+# Use strict defaults
+strict = true
+warn_unreachable = true
+warn_no_return = true
+
+[[tool.mypy.overrides]]
+# Don't require test functions to include types
+module = "tests.*"
+allow_untyped_defs = true
+
+[tool.flake8]
+max-line-length = 120

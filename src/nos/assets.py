@@ -37,7 +37,7 @@ CARD_SELECT_BORDER = BORDERS.subsurface(
 CARD_SELECT_BORDER = pg.transform.scale(CARD_SELECT_BORDER, CARD_SIZE)
 SKELETON_ARCHER = pg.image.load("assets/Skeleton_Archer.png")
 SKELETON = pg.transform.scale(
-    SKELETON_ARCHER.subsurface(pg.Rect((67, 0), (25, 32))), (25, 45)
+    SKELETON_ARCHER.subsurface(pg.Rect((67, 0), (25, 32))), (25, 32)
 )
 
 

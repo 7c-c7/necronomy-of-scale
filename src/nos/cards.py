@@ -1,5 +1,3 @@
-import pygame as pg
-
 import nos
 
 import nos.assets as assets
@@ -9,13 +7,13 @@ class Card(nos.Draggable, nos.Sprite):
     def __init__(
         self,
         image,
-        position_offset,
-        position=None,
+        position=(0, 0),
+        position_offset=None,
         card_data=None,
         is_selected=False,
     ):
         card_data = card_data or {}
-        position = position or (10, (assets.CARD.height - image.height)//2)
+        position_offset = position_offset or (10, (assets.CARD.height - image.height)//2)
         assets.CARD.convert()
         assets.CARD_SELECT_BORDER.convert()
         nos.Draggable.__init__(self, select_mask=assets.CARD_SELECT_BORDER.copy(), is_selected=is_selected)

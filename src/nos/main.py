@@ -17,7 +17,7 @@ class Necronomy:
 
         self.skeleton = cards.Card(
             assets.SKELETON,
-            (100, 100),
+            position=(100, 100),
             card_data={"name": "Skeleton", "cost": 1},
         )
 

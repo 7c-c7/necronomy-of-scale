@@ -3,7 +3,7 @@ import sys
 import nos
 import nos.config as config
 import nos.desktop as desktop
-from nos import manifest, cards, assets
+from nos import cards, assets
 
 
 class Necronomy:
@@ -14,30 +14,50 @@ class Necronomy:
             (config.WINDOW["width"], config.WINDOW["height"])
         )
         self.clock = pygame.time.Clock()
+        assets.initialize()
 
-        self.skeleton = cards.Card(
-            assets.SKELETON,
-            position=(100, 100),
-            card_data={"name": "Skeleton", "cost": 1},
-        )
+        self.skeletons = [
+            cards.Card(
+                assets.SKELETON_ARCHER,
+                position=(100, 100 + i * 65),
+                card_data={"name": f"Archer {state}", "cost": 1},
+                initial_state=state,
+            )
+            for i, state in enumerate(assets.SKELETON_ARCHER.animation_tiles)
+        ] + [
+            cards.Card(
+                assets.SKELETON_SWORDSMAN,
+                position=(400, 100 + i * 65),
+                card_data={"name": f"Swordsman {state}", "cost": 1},
+                initial_state=state,
+            )
+            for i, state in enumerate(assets.SKELETON_SWORDSMAN.animation_tiles)
+        ]
 
         self.groups = [
-            nos.Group([desktop.Desktop(), manifest.Manifest()]),
-            nos.Group([self.skeleton]),
+            nos.Group([desktop.Desktop(), desktop.manifest.Manifest()]),
+            *self.skeletons,
         ]
 
     def run(self):
         while True:
             for event in pygame.event.get():
-                self.skeleton.handle_event(event)
+                for group in reversed(self.groups):
+                    if group.handle_event(
+                        event
+                    ):  # If the event was fully handled, stop checking.
+                        break
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
             for group in self.groups:
+                group.update()
+
+            for group in self.groups:
                 group.draw(self.screen)
             pygame.display.flip()
-            self.clock.tick(config.WINDOW["fps"])
+            self.clock.tick(config.GAME["fps"])
 
 
 if __name__ == "__main__":

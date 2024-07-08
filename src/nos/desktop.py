@@ -9,5 +9,5 @@ class Desktop(nos.Sprite):
     """
 
     def __init__(self):
-        super().__init__(DESKTOP.convert(), position=(0, 0))
+        super().__init__(DESKTOP, position=(0, 0))
         self.manifest = manifest.Manifest()

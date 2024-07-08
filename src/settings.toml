@@ -1,4 +1,15 @@
 [window]
-    width = 768
-    height = 560
+    width = 1280
+    height = 1024
+
+[game]
     fps = 60
+
+    [game.card]
+        height = 63
+        width = 222
+        left_sprite_margin = 20
+
+    [game.manifest]
+        width = 1280
+        height = 1024

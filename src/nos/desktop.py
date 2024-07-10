@@ -1,5 +1,5 @@
 import nos
-from nos.assets import load_asset, DESKTOP
+import nos.assets.base as base_assets
 import nos.manifest as manifest
 
 
@@ -9,5 +9,5 @@ class Desktop(nos.Sprite):
     """
 
     def __init__(self):
-        super().__init__(DESKTOP, position=(0, 0))
+        super().__init__(base_assets.DESKTOP, position=(0, 0))
         self.manifest = manifest.Manifest()

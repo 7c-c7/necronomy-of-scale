@@ -1,9 +1,12 @@
-import pygame
 import sys
+
+import pygame
+
 import nos
+import nos.assets.minions as minions
 import nos.config as config
 import nos.desktop as desktop
-from nos import cards, assets
+from nos import assets, cards
 
 
 class Necronomy:
@@ -18,20 +21,20 @@ class Necronomy:
 
         self.skeletons = [
             cards.Card(
-                assets.SKELETON_ARCHER,
+                minions.SKELETON_ARCHER,
                 position=(100, 100 + i * 65),
                 card_data={"name": f"Archer {state}", "cost": 1},
                 initial_state=state,
             )
-            for i, state in enumerate(assets.SKELETON_ARCHER.animation_tiles)
+            for i, state in enumerate(minions.SKELETON_ARCHER.animation_tiles)
         ] + [
             cards.Card(
-                assets.SKELETON_SWORDSMAN,
+                minions.SKELETON_SWORDSMAN,
                 position=(400, 100 + i * 65),
                 card_data={"name": f"Swordsman {state}", "cost": 1},
                 initial_state=state,
             )
-            for i, state in enumerate(assets.SKELETON_SWORDSMAN.animation_tiles)
+            for i, state in enumerate(minions.SKELETON_SWORDSMAN.animation_tiles)
         ]
 
         self.groups = [

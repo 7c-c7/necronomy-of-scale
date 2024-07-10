@@ -1,12 +1,9 @@
-import pygame as pg
-
 import nos
-import nos.assets as assets
-
+import nos.assets.base as base_assets
 
 POSITION = (5, 5)
 
 
 class Manifest(nos.Sprite):
     def __init__(self):
-        super().__init__(assets.MANIFEST, position=POSITION)
+        super().__init__(base_assets.MANIFEST, position=POSITION)

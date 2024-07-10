@@ -1,3 +1,4 @@
 pygame-ce==2.5.0
 setuptools>=61.0
 ruff==0.4.10
+pre-commit

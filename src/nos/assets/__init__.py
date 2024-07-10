@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import dataclasses
-
-import pygame as pg
+import importlib
+import pkgutil
 from pathlib import Path
 
+import pygame as pg
+
 import nos
-from nos import config
 
 
 def load_asset(path: Path) -> pg.Surface:
@@ -180,107 +181,32 @@ class AnimatedAsset(Asset):
         }
 
 
-DESKTOP = Asset(
-    Path("assets/desktop.png"),
-)
-
-# Manifest, the main page.
-MANIFEST_SPRITESHEET_POSITION_OFFSET = (176, 1040)
-MANIFEST_SPRITESHEET_PAGE_SIZE = (592, 464)
-PAGES = pg.image.load("assets/pages.png")
-BORDERS = pg.image.load("assets/borders.png")
-manifest_page = Asset(
-    spritesheet=PAGES,
-    tile_size=MANIFEST_SPRITESHEET_PAGE_SIZE,
-    offset=MANIFEST_SPRITESHEET_POSITION_OFFSET,
-)
-manifest_border = Asset(
-    spritesheet=BORDERS,
-    tile_size=MANIFEST_SPRITESHEET_PAGE_SIZE,
-    offset=MANIFEST_SPRITESHEET_POSITION_OFFSET,
-)
-MANIFEST = Asset.stack(
-    [manifest_page, manifest_border],
-    scale=(
-        config.GAME["manifest"]["width"] / MANIFEST_SPRITESHEET_PAGE_SIZE[0],
-        config.GAME["manifest"]["height"] / MANIFEST_SPRITESHEET_PAGE_SIZE[1],
-    ),
-)
-
-# Card, what most things of importance will be displayed on.
-CARD_SPRITESHEET_POSITION_OFFSET = (1927, 1445)
-CARD_SPRITESHEET_SIZE = (74, 21)
-CARD_SCALE = config.GAME["card"]["height"] / CARD_SPRITESHEET_SIZE[1]
-card_page = Asset(
-    spritesheet=PAGES,
-    tile_size=CARD_SPRITESHEET_SIZE,
-    offset=CARD_SPRITESHEET_POSITION_OFFSET,
-)
-card_border = Asset(
-    spritesheet=BORDERS,
-    tile_size=CARD_SPRITESHEET_SIZE,
-    offset=CARD_SPRITESHEET_POSITION_OFFSET,
-)
-CARD = Asset.stack([card_page, card_border], scale=CARD_SCALE)
-CARD_SELECT_BORDER_OFFSET = (1927, 1478)
-CARD_SELECT_BORDER = Asset(
-    spritesheet=BORDERS,
-    tile_size=CARD_SPRITESHEET_SIZE,
-    offset=CARD_SELECT_BORDER_OFFSET,
-    scale=CARD_SCALE,
-)
-
-# Skeleton Archer, a basic enemy.
-SKELETON_ARCHER = AnimatedAsset(
-    path=Path("assets/Skeleton_Archer.png"),
-    tile_size=(32, 34),
-    static_tile=(2, 0),
-    animation_tiles={
-        "idle": [(0, 0), (1, 0)],
-        "celebrating": [(1, 0), (3, 0)],
-        "standing": [(2, 0)],
-        "walking": [(0, 0), (1, 0), (2, 0), (3, 0)],
-        "attacking": [(3, 0), (0, 0), (0, 1), (1, 0)],
-        "dead": [(2, 1)],
-    },
-    frame_duration={"idle": 40, "celebrating": 40, "walking": 40, "attacking": 40},
-    colorkey=(255, 0, 255),
-)
-
-# Skeleton Swordsman, an even basic-er enemy.
-SKELETON_SWORDSMAN = AnimatedAsset(
-    path=Path("assets/Skeleton_Swordsman.png"),
-    tile_size=(32, 32),
-    static_tile=(1, 0),
-    animation_tiles={
-        "idle": [(0, 0), (2, 0)],
-        "celebrating": [(1, 0), (0, 1)],
-        "standing": [(2, 0)],
-        "walking": [(0, 0), (1, 0), (2, 0), (0, 1)],
-        "attacking": [(1, 0), (0, 1), (1, 1), (0, 0), (2, 0)],
-        "dead": [(2, 1)],
-    },
-    frame_duration={"idle": 40, "celebrating": 40, "walking": 40, "attacking": 40},
-    colorkey=(255, 0, 255),
-)
-
-
 def load_all() -> None:
     """
     load all assets and optimize for use.
     """
-    for maybe_asset in globals().values():
-        if isinstance(maybe_asset, Asset):
-            maybe_asset.load()
+    for module_finder, name, ispkg in pkgutil.iter_modules(
+        nos.assets.__path__, nos.assets.__name__ + "."
+    ):
+        module = importlib.import_module(name)
+        for obj_name in dir(module):
+            obj = getattr(module, obj_name)
+            if isinstance(obj, Asset):
+                obj.load()
 
 
 def clean_up() -> None:
     """
     Remove all construction assets to save memory.
     """
-    for maybe_asset in globals().values():
-        if not isinstance(maybe_asset, Asset):
-            del maybe_asset
+    for module_finder, name, ispkg in pkgutil.iter_modules(
+        ["nos.assets"], "nos.assets."
+    ):
+        module = importlib.import_module(name)
+        for obj_name in dir(module):
+            obj = getattr(module, obj_name)
+            if not isinstance(obj, Asset):
+                del obj
 
 
 def initialize():

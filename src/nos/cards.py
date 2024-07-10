@@ -3,8 +3,8 @@ from pathlib import Path
 import pygame as pg
 
 import nos
-
 import nos.assets as assets
+import nos.assets.cards as cards
 from nos import config
 
 
@@ -22,7 +22,7 @@ class Card(nos.Draggable, nos.Group):
         handwriting.italic = True
         card_data = card_data or {}
         self.card_data = card_data
-        self.card = nos.Sprite(assets.CARD, position=position)
+        self.card = nos.Sprite(cards.CARD, position=position)
         self.icon = nos.AnimatedSprite(
             asset, position=position, initial_state=initial_state
         )
@@ -44,7 +44,7 @@ class Card(nos.Draggable, nos.Group):
         nos.Group.__init__(self, sprites=[self.card, self.icon, self.text])
         nos.Draggable.__init__(
             self,
-            select_mask=nos.Sprite(assets.CARD_SELECT_BORDER, position=position),
+            select_mask=nos.Sprite(cards.CARD_SELECT_BORDER, position=position),
             is_selected=is_selected,
         )
 

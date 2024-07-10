@@ -30,7 +30,6 @@ dev = [
 ]
 
 [project.urls]
-
 bugs = "https://github.com/7c-c7/necronomy-of-scale/issues"
 homepage = "https://github.com/7c-c7/necronomy-of-scale"
 
@@ -39,25 +38,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.package-data]
 "*" = ["*.*"]
-
-
-
-
-# Mypy
-# ----
-
-[tool.mypy]
-files = "."
-
-# Use strict defaults
-strict = true
-warn_unreachable = true
-warn_no_return = true
-
-[[tool.mypy.overrides]]
-# Don't require test functions to include types
-module = "tests.*"
-allow_untyped_defs = true
 
 [tool.flake8]
 max-line-length = 120

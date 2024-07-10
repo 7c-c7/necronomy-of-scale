@@ -1,6 +1,9 @@
 # Necronomy of Scale
 _Manage your undead horde the easy way!_
 
+![Teaser image](https://lh3.googleusercontent.com/d/1aj4FD8yrYg7FKfWdshUYuyMS8Pr11g6O)
+
+
 Have you ever wanted to control an army of the undead, but found that it was more similar to clerical work than 
 your dream of world domination? Well, you're in luck! Necronomy of Scale is a project that aims to make managing
 your soulless, rotting husks a breeze (hopefully one you are upwind of).

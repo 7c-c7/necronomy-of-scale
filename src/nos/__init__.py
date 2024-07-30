@@ -3,10 +3,8 @@ import typing
 import pygame as pg
 
 from nos import assets
-from nos.config import WINDOW
 
-
-COORDS = typing.TypeVar("COORDS", tuple[int | float, int | float], pg.Vector2)
+COORDINATES = typing.TypeVar("COORDINATES", tuple[int | float, int | float], pg.Vector2)
 
 
 class Sprite(pg.sprite.Sprite):
@@ -14,7 +12,7 @@ class Sprite(pg.sprite.Sprite):
         self,
         asset: assets.Asset,
         rect: pg.Rect = None,
-        position: COORDS = (0, 0),
+        position: COORDINATES = (0, 0),
         groups: list["Group"] = None,
     ):
         super().__init__(*(groups or []))

@@ -121,6 +121,24 @@ class Asset:
         offsets: list[tuple[int, int]] = None,
         scale: float | tuple[float, float] = (1, 1),
     ) -> Asset:
+        """
+        Stack multiple assets into a single Asset.
+
+        Parameters
+        ----------
+        assets : list[Asset]
+            The assets to stack.
+        tiles : list[tuple[int, int]]
+            The tiles to use for each asset.
+        offsets : list[tuple[int, int]]
+            The offsets of each asset.
+        scale : float | tuple[float, float]
+            The scale to apply to the final Asset.
+
+        Returns
+        -------
+        Asset: the stacked asset.
+        """
         offsets = offsets or [(0, 0) for _ in assets]
         tiles = tiles or [asset.static_tile for asset in assets]
         size = (
@@ -185,19 +203,23 @@ def load_all() -> None:
     """
     load all assets and optimize for use.
     """
-    for module_finder, name, ispkg in pkgutil.iter_modules(
-        nos.assets.__path__, nos.assets.__name__ + "."
-    ):
-        module = importlib.import_module(name)
+    globals()["__all__"] = __all__ = []
+    for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+        __all__.append(module_name)
+        _module = importlib.import_module(f".{module_name}", __name__)
+        globals()[module_name] = _module
+
+    for module_name in __all__:
+        module = globals()[module_name]
         for obj_name in dir(module):
             obj = getattr(module, obj_name)
-            if isinstance(obj, Asset):
+            if isinstance(obj, nos.assets.Asset):
                 obj.load()
 
 
 def clean_up() -> None:
     """
-    Remove all construction assets to save memory.
+    Remove all construction objects to save memory.
     """
     for module_finder, name, ispkg in pkgutil.iter_modules(
         ["nos.assets"], "nos.assets."

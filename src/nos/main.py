@@ -3,10 +3,10 @@ import sys
 import pygame
 
 import nos
-import nos.assets.minions as minions
+import nos.assets as assets
+import nos.cards as cards
 import nos.config as config
 import nos.desktop as desktop
-from nos import assets, cards
 
 
 class Necronomy:
@@ -17,24 +17,25 @@ class Necronomy:
             (config.WINDOW["width"], config.WINDOW["height"])
         )
         self.clock = pygame.time.Clock()
+
         assets.initialize()
 
         self.skeletons = [
             cards.Card(
-                minions.SKELETON_ARCHER,
+                assets.minions.SKELETON_ARCHER,
                 position=(100, 100 + i * 65),
                 card_data={"name": f"Archer {state}", "cost": 1},
                 initial_state=state,
             )
-            for i, state in enumerate(minions.SKELETON_ARCHER.animation_tiles)
+            for i, state in enumerate(assets.minions.SKELETON_ARCHER.animation_tiles)
         ] + [
             cards.Card(
-                minions.SKELETON_SWORDSMAN,
+                assets.minions.SKELETON_SWORDSMAN,
                 position=(400, 100 + i * 65),
                 card_data={"name": f"Swordsman {state}", "cost": 1},
                 initial_state=state,
             )
-            for i, state in enumerate(minions.SKELETON_SWORDSMAN.animation_tiles)
+            for i, state in enumerate(assets.minions.SKELETON_SWORDSMAN.animation_tiles)
         ]
 
         self.groups = [
@@ -61,6 +62,12 @@ class Necronomy:
                 group.draw(self.screen)
             pygame.display.flip()
             self.clock.tick(config.GAME["fps"])
+
+    @staticmethod
+    def quit(close=True):
+        pygame.quit()
+        if close:
+            sys.exit()
 
 
 if __name__ == "__main__":

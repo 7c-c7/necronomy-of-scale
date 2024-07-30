@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pygame as pg
 
-import nos
 import nos.assets as assets
+import nos.config as config
 
 DESKTOP = assets.Asset(
     Path("assets/desktop.png"),
@@ -29,7 +29,7 @@ manifest_border = assets.Asset(
 MANIFEST = assets.Asset.stack(
     [manifest_page, manifest_border],
     scale=(
-        nos.config.GAME["manifest"]["width"] / MANIFEST_SPRITESHEET_PAGE_SIZE[0],
-        nos.config.GAME["manifest"]["height"] / MANIFEST_SPRITESHEET_PAGE_SIZE[1],
+        config.GAME["manifest"]["width"] / MANIFEST_SPRITESHEET_PAGE_SIZE[0],
+        config.GAME["manifest"]["height"] / MANIFEST_SPRITESHEET_PAGE_SIZE[1],
     ),
 )

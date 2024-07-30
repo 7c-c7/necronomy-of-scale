@@ -1,11 +1,12 @@
 import dataclasses
 
 import nos.world as world
+import nos.world.attacks as atks
 
 
 @dataclasses.dataclass
 class Creature(world.Entity):
-    attacks: [world.Attack] = dataclasses.field(default_factory=list)
+    attacks: [atks.Attack] = dataclasses.field(default_factory=list)
     actions: [world.Action] = dataclasses.field(default_factory=list)
     reactions: [world.Action] = dataclasses.field(default_factory=list)
     carrying_capacity: float = dataclasses.field(init=False)
@@ -22,10 +23,10 @@ class Creature(world.Entity):
         self.world_position.z += dz
         self.turn.movement += (dx**2 + dy**2 + dz**2) ** 0.5
 
-    def attack(self, target: world.Entity, attack: world.Attack):
+    def attack(self, target: world.Entity, attack: atks.Attack):
         hit, damage, effects = attack.resolve(self, target)
         for effect in effects:
-            if isinstance(effect, world.Attack):
+            if isinstance(effect, atks.Attack):
                 self.attack(target, effect)
             elif isinstance(effect, world.Condition):
                 target.conditions.append(effect)

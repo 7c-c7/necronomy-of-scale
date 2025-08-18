@@ -1,12 +1,14 @@
 import sys
 
 import pygame
+import pygame_gui as gui
 
 import nos
 import nos.assets as assets
-import nos.cards as cards
 import nos.config as config
-import nos.desktop as desktop
+import nos.workspace.cards as cards
+import nos.workspace.desktop as desktop
+import nos.workspace.manifest as manifest
 
 
 class Necronomy:
@@ -17,6 +19,10 @@ class Necronomy:
             (config.WINDOW["width"], config.WINDOW["height"])
         )
         self.clock = pygame.time.Clock()
+        self.gui_manager = gui.UIManager(
+            (config.WINDOW["width"], config.WINDOW["height"]),
+            "assets/themes/pygame_gui_theme.json",
+        )
 
         assets.initialize()
 
@@ -38,30 +44,37 @@ class Necronomy:
             for i, state in enumerate(assets.minions.SKELETON_SWORDSMAN.animation_tiles)
         ]
 
+        self.workspace = nos.Group(
+            [
+                desktop.Desktop(),
+                manifest.Manifest(self, self.gui_manager, self.skeletons),
+            ]
+        )
+
         self.groups = [
-            nos.Group([desktop.Desktop(), desktop.manifest.Manifest()]),
+            self.workspace,
             *self.skeletons,
         ]
 
     def run(self):
         while True:
+            time_delta = self.clock.tick(config.GAME["fps"]) / 1000.0
             for event in pygame.event.get():
-                for group in reversed(self.groups):
-                    if group.handle_event(
+                for group in self.groups:
+                    if group.process_event(
                         event
                     ):  # If the event was fully handled, stop checking.
                         break
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.quit()
 
             for group in self.groups:
-                group.update()
+                group.update(time_delta)
 
             for group in self.groups:
                 group.draw(self.screen)
+            self.gui_manager.draw_ui(self.screen)
             pygame.display.flip()
-            self.clock.tick(config.GAME["fps"])
 
     @staticmethod
     def quit(close=True):

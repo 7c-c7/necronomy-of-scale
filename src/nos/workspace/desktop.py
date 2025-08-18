@@ -1,6 +1,5 @@
 import nos
 import nos.assets.base as base_assets
-import nos.manifest as manifest
 
 
 class Desktop(nos.Sprite):
@@ -10,4 +9,3 @@ class Desktop(nos.Sprite):
 
     def __init__(self):
         super().__init__(base_assets.DESKTOP, position=(0, 0))
-        self.manifest = manifest.Manifest()

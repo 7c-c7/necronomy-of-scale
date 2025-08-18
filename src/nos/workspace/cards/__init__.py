@@ -5,6 +5,7 @@ import pygame as pg
 import nos
 import nos.assets as assets
 import nos.assets.cards as cards
+import nos.world as world
 from nos import config
 
 
@@ -15,12 +16,14 @@ class Card(nos.Draggable, nos.Group):
         initial_state: str = "idle",
         position=(0, 0),
         icon_offset=None,
+        entity: world.Entity = None,
         card_data=None,
         is_selected=False,
     ):
         handwriting = pg.font.Font(Path("assets/fonts/Grand9K_Pixel.ttf"), 10)
         handwriting.italic = True
         card_data = card_data or {}
+        self.entity = entity
         self.card_data = card_data
         self.card = nos.Sprite(cards.CARD, position=position)
         self.icon = nos.AnimatedSprite(
@@ -48,11 +51,15 @@ class Card(nos.Draggable, nos.Group):
             is_selected=is_selected,
         )
 
-    def update(self):
+    def update(self, *_):
         super().update()
         self.card.rect.topleft = self.rect.topleft
         self.card.update()
-        self.icon.rect = pg.Vector2(self.rect.topleft) + pg.Vector2(self.icon_offset)
+        self.icon.rect.topleft = pg.Vector2(self.rect.topleft) + pg.Vector2(
+            self.icon_offset
+        )
         self.icon.update()
-        self.text.rect = pg.Vector2(self.rect.topleft) + pg.Vector2(self.text_offset)
+        self.text.rect.topleft = pg.Vector2(self.rect.topleft) + pg.Vector2(
+            self.text_offset
+        )
         self.text.update()

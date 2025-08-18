@@ -1,5 +1,6 @@
 import dataclasses
 
+import nos.world
 import nos.world as world
 import nos.world.attacks as atks
 
@@ -28,5 +29,5 @@ class Creature(world.Entity):
         for effect in effects:
             if isinstance(effect, atks.Attack):
                 self.attack(target, effect)
-            elif isinstance(effect, world.Condition):
+            elif isinstance(effect, nos.world.Condition):
                 target.conditions.append(effect)

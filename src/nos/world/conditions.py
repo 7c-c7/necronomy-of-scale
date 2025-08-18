@@ -7,39 +7,11 @@ import nos.world as world
 import nos.world.movement as world_movement
 
 
-@dataclasses.dataclass
-class Condition:
-    description: typing.ClassVar[str] = None
-    name: str = None
-    duration: int = None  # in turns (6 seconds)
-    remaining_duration: int = dataclasses.field(default=None)  # in turns (6 seconds)
-
-    def __post_init__(self):
-        self.name = self.name or type(self).__name__
-        self.remaining_duration = (
-            self.duration
-            if self.remaining_duration is None or self.duration is None
-            else self.remaining_duration
-        )
-
-    def __str__(self):
-        string = self.name
-        if self.remaining_duration:
-            string += f" for {self.remaining_duration} turns"
-        return string
-
-    def apply_to(self, entity):
-        pass
-
-    def remove_from(self, entity):
-        pass
-
-
-class Blinded(Condition):
+class Blinded(world.Condition):
     description = "A blinded creature can't see and automatically fails any ability check that requires sight."
 
 
-class Charmed(Condition):
+class Charmed(world.Condition):
     description = (
         "A charmed creature can't attack the charmer "
         "or target the charmer with harmful abilities or magical effects."
@@ -47,11 +19,11 @@ class Charmed(Condition):
     by: object = None
 
 
-class Deafened(Condition):
+class Deafened(world.Condition):
     description = "A deafened creature can't hear and automatically fails any ability check that requires hearing."
 
 
-class Frightened(Condition):
+class Frightened(world.Condition):
     description = (
         "A frightened creature has disadvantage on ability checks and attack rolls "
         "while the source of its fear is within line of sight."
@@ -59,7 +31,7 @@ class Frightened(Condition):
     by: object = None
 
 
-class Immobilized(Condition):
+class Immobilized(world.Condition):
     description = "An immobilized creature has zero movement speed."
     _original_speed: dict[str, int] = dataclasses.field(
         init=False, default_factory=dict
@@ -76,12 +48,12 @@ class Immobilized(Condition):
             movement.speed = self._original_speed[movement.name]
 
 
-class Grappled(Condition):
+class Grappled(world.Condition):
     description = "A grappled creature's speed becomes 0, and it can't benefit from any bonus to its speed."
     by: object = None
 
 
-class Incapacitated(Condition):
+class Incapacitated(world.Condition):
     description = "An incapacitated creature can't take actions or reactions."
     _action: typing.ClassVar[world.Action] = world.Action(
         name="Incapacitated", description=description
@@ -98,7 +70,7 @@ class Incapacitated(Condition):
         entity.reaction = None
 
 
-class Invisible(Condition):
+class Invisible(world.Condition):
     description = (
         "An invisible creature is impossible to see without the aid of magic or a special sense. "
         "For the purpose of hiding, the creature is heavily obscured. "
@@ -140,13 +112,13 @@ class Petrified(Incapacitated, Immobilized):
         Immobilized.apply_to(self, entity)
 
 
-class Poisoned(Condition):
+class Poisoned(world.Condition):
     description = (
         "A poisoned creature has disadvantage on attack rolls and ability checks."
     )
 
 
-class Prone(Condition):
+class Prone(world.Condition):
     description = (
         "A prone creature's only movement option is to crawl, "
         "unless it stands up and thereby ends the condition."
@@ -208,7 +180,7 @@ class Unconscious(Incapacitated, Immobilized, Prone):
 
 
 @dataclasses.dataclass
-class Exhaustion(Condition):
+class Exhaustion(world.Condition):
     description = (
         "Some special abilities and environmental hazards, "
         "such as starvation and the long-term effects of freezing or scorching temperatures, "

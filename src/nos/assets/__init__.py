@@ -44,6 +44,7 @@ class Asset:
     static_tile: tuple[int, int] = (0, 0)
     offset: tuple[int, int] = (0, 0)
     colorkey: tuple[int, int, int] = (0, 0, 0)
+    final_size: tuple[int, int] = None
     """
     Attributes
     ----------
@@ -54,13 +55,15 @@ class Asset:
     tile_size : tuple[int, int]
         The size of the tiles in the spritesheet.
     scale : float | tuple[float, float]
-        The scale to apply to images from the spritesheet.
+        The scale to apply to images from the spritesheet. Do not use with final_size.
     static_tile : tuple[int, int]
         The tile to use as the static image, in tile indices (default is (0, 0)).
     offset : tuple[int, int]
         The offset of the (0, 0) tile from the top left corner of the spritesheet.
     colorkey : tuple[int, int, int]
         The color to use as the transparency mask for the spritesheet.
+    final_size : tuple[int, int]
+        The final size of the spritesheet after scaling. Should not be used with scale.
     """
 
     def __post_init__(self):
@@ -74,6 +77,14 @@ class Asset:
         self.scale: tuple[float, float] = (
             self.scale if isinstance(self.scale, tuple) else (self.scale, self.scale)
         )
+        if self.final_size:
+            if not self.scale == (1, 1):
+                raise ValueError("Scale and final_size cannot be used together.")
+            self.scale = (
+                self.final_size[0] / self.spritesheet.width,
+                self.final_size[1] / self.spritesheet.height,
+            )
+        self.tile_size = self.tile_size or self.spritesheet.get_size()
 
     def load(self) -> None:
         self.spritesheet = self.spritesheet.convert_alpha()

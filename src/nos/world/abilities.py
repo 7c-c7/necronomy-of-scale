@@ -1,52 +1,84 @@
 import dataclasses
+import typing
 from abc import ABC
 
 
 @dataclasses.dataclass
 class Ability(ABC):
-    name: str
     score: int = 10
-    bonus: int = dataclasses.field(init=False)
 
-    def __post_init__(self):
-        self.bonus = (self.score - 10) // 2
+    @property
+    def bonus(self):
+        return (self.score - 10) // 2
+
+    @property
+    def name(self):
+        return self.__class__.name
 
     def __str__(self):
         return f"{self.bonus:+d} {self.name} ({self.score})"
 
 
 class Strength(Ability):
-    name = "Strength"
+    pass
 
 
 class Dexterity(Ability):
-    name = "Dexterity"
+    pass
 
 
 class Constitution(Ability):
-    name = "Constitution"
+    pass
 
 
 class Intelligence(Ability):
-    name = "Intelligence"
+    pass
 
 
 class Wisdom(Ability):
-    name = "Wisdom"
+    pass
 
 
 class Charisma(Ability):
-    name = "Charisma"
+    pass
 
 
 @dataclasses.dataclass
 class Abilities:
-    strength: Strength = dataclasses.field(default_factory=Strength)
-    dexterity: Dexterity = dataclasses.field(default_factory=Dexterity)
-    constitution: Constitution = dataclasses.field(default_factory=Constitution)
-    intelligence: Intelligence = dataclasses.field(default_factory=Intelligence)
-    wisdom: Wisdom = dataclasses.field(default_factory=Wisdom)
-    charisma: Charisma = dataclasses.field(default_factory=Charisma)
+    _types: typing.ClassVar[list[type[Ability]]] = [
+        Strength,
+        Dexterity,
+        Constitution,
+        Intelligence,
+        Wisdom,
+        Charisma,
+    ]
+    strength: Strength | int | tuple[int, int, int, int, int, int] = dataclasses.field(
+        default_factory=Strength
+    )
+    dexterity: Dexterity | int = dataclasses.field(default_factory=Dexterity)
+    constitution: Constitution | int = dataclasses.field(default_factory=Constitution)
+    intelligence: Intelligence | int = dataclasses.field(default_factory=Intelligence)
+    wisdom: Wisdom | int = dataclasses.field(default_factory=Wisdom)
+    charisma: Charisma | int = dataclasses.field(default_factory=Charisma)
+
+    def __post_init__(self):
+        if isinstance(self.strength, tuple):
+            strength, dex, con, intelligence, wis, cha = self.strength
+            self.strength = Strength(strength)
+            self.dexterity = Dexterity(dex)
+            self.constitution = Constitution(con)
+            self.intelligence = Intelligence(intelligence)
+            self.wisdom = Wisdom(wis)
+            self.charisma = Charisma(cha)
+        for field, type_ in zip(dataclasses.fields(self), self._types):
+            if isinstance(score := getattr(self, field.name), Ability):
+                continue
+            if not isinstance(score, int):
+                raise TypeError(
+                    f"Expected {field.name} to be an Ability or an int, not {type(score)}"
+                )
+            setattr(self, field.name, type_(score))
 
     def __str__(self):
         return "\n".join(str(ability) for ability in dataclasses.astuple(self))

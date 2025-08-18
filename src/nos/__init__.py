@@ -5,6 +5,8 @@ import pygame as pg
 from nos import assets
 
 COORDINATES = typing.TypeVar("COORDINATES", tuple[int | float, int | float], pg.Vector2)
+TO_TOP = "to_top"
+TO_BOTTOM = "to_bottom"
 
 
 class Sprite(pg.sprite.Sprite):
@@ -20,7 +22,7 @@ class Sprite(pg.sprite.Sprite):
         self.rect = rect or self.image.get_rect()
         self.rect.topleft = position
 
-    def handle_event(self, event):
+    def process_event(self, event):
         return
 
     def update(self, *args, **kwargs):
@@ -97,7 +99,7 @@ class AnimatedSprite(Sprite):
         self.animation.reset()
         self.image = self.animation.image
 
-    def update(self):
+    def update(self, *_, **__):
         self.animation.advance()
         self.image = self.animation.image
 
@@ -105,18 +107,35 @@ class AnimatedSprite(Sprite):
 class Group(pg.sprite.Group):
     def __init__(
         self,
-        sprites: list[Sprite] = None,
+        sprites: list[Sprite | typing.Self] = None,
         position_offset: tuple[int, int] = (0, 0),
     ):
         super().__init__(*sprites)
         self.position_offset = position_offset
-        self.rect = sprites[0].rect.copy()
-        for sprite in sprites:
-            self.rect.union_ip(sprite.rect)
+        self.rect = self.bounding_rect()
+        self.reorder = None
 
-    def handle_event(self, event):
+    def bounding_rect(self):
+        rect = self.sprites()[0].rect.copy()
         for sprite in self.sprites():
-            sprite.handle_event(event)
+            rect.union_ip(sprite.rect)
+        return rect
+
+    def add(self, *sprites):
+        super().add(*sprites)
+        self.rect = self.bounding_rect()
+
+    def remove(self, *sprites):
+        super().remove(*sprites)
+        self.rect = self.bounding_rect()
+
+    def process_event(self, event):
+        for sprite in self.sprites():
+            sprite.process_event(event)
+
+    def update(self, *args, **kwargs):
+        for sprite in self.sprites():
+            sprite.update(*args, **kwargs)
 
 
 class Selectable:
@@ -124,6 +143,7 @@ class Selectable:
         self: Group | typing.Self, select_mask: Sprite = None, is_selected: bool = False
     ):
         self.is_selected = is_selected
+        self.reorder = getattr(self, "reorder", None)
         self.select_mask = select_mask
         if not self.select_mask:
             border_surface = pg.Surface(
@@ -139,16 +159,20 @@ class Selectable:
                 assets.Asset(spritesheet=border_surface), position=self.rect.topleft
             )
 
-    def handle_event(self: Group | typing.Type[typing.Self], event):
-        super_safe(super(), "handle_event", event)
+    def process_event(self: Group | typing.Type[typing.Self], event):
+        super_safe(super(), "process_event", event)
         if event.type == pg.MOUSEBUTTONUP and event.button == 1:
             if self.rect.collidepoint(event.pos):
-                self.toggle_select()
+                self.select()
                 return True
+            else:
+                self.deselect()
+                return False
 
     def select(self: Group | typing.Type[typing.Self]):
         self.is_selected = True
         self.add(self.select_mask)
+        self.reorder = TO_TOP
 
     def deselect(self: Group | typing.Type[typing.Self]):
         self.is_selected = False
@@ -157,7 +181,7 @@ class Selectable:
     def toggle_select(self):
         self.select() if not self.is_selected else self.deselect()
 
-    def update(self: type[Group] | typing.Self):
+    def update(self: type[Group] | typing.Self, *_, **__):
         super_safe(super(), "update")
         self.select_mask.rect.topleft = self.rect.topleft
 
@@ -172,27 +196,23 @@ class Draggable(Selectable):
         self.dragging = False
         self.offset_x = 0
         self.offset_y = 0
-        self._selected_state = self.is_selected
         self._original_position = None
+        self.reorder = getattr(self, "move", None)
 
-    def handle_event(self: Group | typing.Type[typing.Self], event):
-        handled = super().handle_event(event)
-        if not handled and event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+    def process_event(self: Group | typing.Type[typing.Self], event):
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             if self.rect.collidepoint(event.pos):
-                self._selected_state = self.is_selected
                 self._original_position = self.rect.topleft
                 self.dragging = True
                 mouse_x, mouse_y = event.pos
                 self.offset_x = self.rect.x - mouse_x
                 self.offset_y = self.rect.y - mouse_y
+                self.reorder = TO_TOP
                 return True
-        if event.type == pg.MOUSEBUTTONUP and event.button == 1:
+        elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
             self.dragging = False
-            if self.rect.collidepoint(event.pos):
-                if self.rect.topleft != self._original_position:
-                    self.toggle_select()
-                    return True
-        if not handled and event.type == pg.MOUSEMOTION and self.dragging:
+            return super().process_event(event)
+        elif event.type == pg.MOUSEMOTION and self.dragging:
             mouse_x, mouse_y = event.pos
             self.rect.x = mouse_x + self.offset_x
             self.rect.y = mouse_y + self.offset_y

@@ -6,7 +6,6 @@ from abc import ABC
 
 from nos import assets
 from nos.world.abilities import Abilities, Skill
-from nos.world.conditions import Condition
 from nos.world.movement import Movement, Position
 
 
@@ -195,3 +194,31 @@ class Container(Item):
             )
             + self.size.weight
         )
+
+
+@dataclasses.dataclass
+class Condition:
+    description: typing.ClassVar[str] = None
+    name: str = None
+    duration: int = None  # in turns (6 seconds)
+    remaining_duration: int = dataclasses.field(default=None)  # in turns (6 seconds)
+
+    def __post_init__(self):
+        self.name = self.name or type(self).__name__
+        self.remaining_duration = (
+            self.duration
+            if self.remaining_duration is None or self.duration is None
+            else self.remaining_duration
+        )
+
+    def __str__(self):
+        string = self.name
+        if self.remaining_duration:
+            string += f" for {self.remaining_duration} turns"
+        return string
+
+    def apply_to(self, entity):
+        pass
+
+    def remove_from(self, entity):
+        pass

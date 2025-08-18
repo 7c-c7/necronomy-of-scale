@@ -9,6 +9,7 @@ import nos.config as config
 
 DESKTOP = assets.Asset(
     Path("assets/desktop.png"),
+    final_size=(config.WINDOW["width"], config.WINDOW["height"]),
 )
 
 # Manifest, the main page.
@@ -29,7 +30,13 @@ manifest_border = assets.Asset(
 MANIFEST = assets.Asset.stack(
     [manifest_page, manifest_border],
     scale=(
-        config.GAME["manifest"]["width"] / MANIFEST_SPRITESHEET_PAGE_SIZE[0],
-        config.GAME["manifest"]["height"] / MANIFEST_SPRITESHEET_PAGE_SIZE[1],
+        (DESKTOP.final_size[0] - 2 * config.GAME["manifest"]["edge_margin"])
+        / MANIFEST_SPRITESHEET_PAGE_SIZE[0],
+        (
+            DESKTOP.final_size[1]
+            - 2 * config.GAME["manifest"]["edge_margin"]
+            - config.GAME["manifest"]["bottom_margin"]
+        )
+        / MANIFEST_SPRITESHEET_PAGE_SIZE[1],
     ),
 )

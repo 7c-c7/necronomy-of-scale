@@ -11,5 +11,5 @@
         left_sprite_margin = 20
 
     [game.manifest]
-        width = 1280
-        height = 1024
+        edge_margin = 10
+        bottom_margin = 60
